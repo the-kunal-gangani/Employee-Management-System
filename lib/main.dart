@@ -5,6 +5,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_cubit.dart';
+import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/auth/presentation/bloc/auth_event.dart';
+import 'features/auth/presentation/bloc/auth_state.dart';
 import 'firebase_options.dart';
 import 'injection_container.dart' as di;
 
@@ -25,8 +28,13 @@ class EmployeeManagementApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<ThemeCubit>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => di.sl<ThemeCubit>()),
+        BlocProvider(
+          create: (_) => di.sl<AuthBloc>()..add(const AuthStarted()),
+        ),
+      ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {
           return MaterialApp(
@@ -35,7 +43,7 @@ class EmployeeManagementApp extends StatelessWidget {
             themeMode: themeMode,
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
-            home: const _BootstrapPlaceholder(),
+            home: const _AuthGate(),
           );
         },
       ),
@@ -43,13 +51,47 @@ class EmployeeManagementApp extends StatelessWidget {
   }
 }
 
-/// Temporary placeholder shown until the Auth feature's router/bloc
-/// is wired in to redirect between Login and the Employee Dashboard.
-class _BootstrapPlaceholder extends StatelessWidget {
-  const _BootstrapPlaceholder();
+/// Routes between Login and the Employee Dashboard based on AuthBloc's
+/// status. Screens referenced here are placeholders until the real
+/// Login/Register/Dashboard screens are built.
+class _AuthGate extends StatelessWidget {
+  const _AuthGate();
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text('Employee Management App')));
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        switch (state.status) {
+          case AuthStatus.unknown:
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          case AuthStatus.authenticated:
+            return const _DashboardPlaceholder();
+          case AuthStatus.unauthenticated:
+            return const _LoginPlaceholder();
+        }
+      },
+    );
+  }
+}
+
+class _LoginPlaceholder extends StatelessWidget {
+  const _LoginPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: Center(child: Text('Login screen goes here')));
+  }
+}
+
+class _DashboardPlaceholder extends StatelessWidget {
+  const _DashboardPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: Text('Employee Dashboard goes here')),
+    );
   }
 }
