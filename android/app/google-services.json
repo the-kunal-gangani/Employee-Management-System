@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "999155541013",
+    "project_id": "employee-management-syst-fc19d",
+    "storage_bucket": "employee-management-syst-fc19d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:999155541013:android:cf7697087ab6265d9f5a1c",
+        "android_client_info": {
+          "package_name": "com.example.employee_management_system"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "999155541013-djmjd7lgsc4qc53jj9vkj25k7ksnbngp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.employee_management_system",
+            "certificate_hash": "b173f96f3c790f778d65aa717ccf350427efcc9d"
+          }
+        },
+        {
+          "client_id": "999155541013-had1n3l30uteggubjpf0hi0gchtklue6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4vLSTM74Q_ZvBfZBNX4_JktOu44EcwsA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "999155541013-had1n3l30uteggubjpf0hi0gchtklue6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "999155541013-1phic5abfk1tqfnr3g2lu0nd8goh052k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.employeeManagementSystem"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

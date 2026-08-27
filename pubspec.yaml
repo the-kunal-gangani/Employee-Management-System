@@ -48,6 +48,7 @@ dependencies:
   bloc_test: ^10.0.0
   mocktail: ^1.0.5
   mockito: ^5.6.4
+  google_fonts: ^8.2.1
 
 dev_dependencies:
   flutter_test:
