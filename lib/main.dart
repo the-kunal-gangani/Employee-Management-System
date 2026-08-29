@@ -9,15 +9,15 @@ import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
+import 'features/employee/presentation/bloc/employee_list/employee_list_bloc.dart';
+import 'features/employee/presentation/screens/employee_dashboard_screen.dart';
 import 'firebase_options.dart';
 import 'injection_container.dart' as di;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await Hive.initFlutter();
 
@@ -55,8 +55,7 @@ class EmployeeManagementApp extends StatelessWidget {
 }
 
 /// Routes between Login and the Employee Dashboard based on AuthBloc's
-/// status. Screens referenced here are placeholders until the real
-/// Login/Register/Dashboard screens are built.
+/// status.
 class _AuthGate extends StatelessWidget {
   const _AuthGate();
 
@@ -70,22 +69,14 @@ class _AuthGate extends StatelessWidget {
               body: Center(child: CircularProgressIndicator()),
             );
           case AuthStatus.authenticated:
-            return const _DashboardPlaceholder();
+            return BlocProvider(
+              create: (_) => di.sl<EmployeeListBloc>(),
+              child: const EmployeeDashboardScreen(),
+            );
           case AuthStatus.unauthenticated:
             return const LoginScreen();
         }
       },
-    );
-  }
-}
-
-class _DashboardPlaceholder extends StatelessWidget {
-  const _DashboardPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Employee Dashboard goes here')),
     );
   }
 }
