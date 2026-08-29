@@ -49,9 +49,17 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => FirebaseAuth.instance);
 
   // GoogleSignIn v7 is a singleton that must be initialized once,
-  // asynchronously, before authenticate() can be called.
+  // asynchronously, before authenticate() can be called. It has no
+  // implementation on Windows/Linux desktop, so initialize() throws
+  // UnimplementedError there — caught so app startup doesn't crash on
+  // platforms where Google Sign-In simply isn't available.
   final googleSignIn = GoogleSignIn.instance;
-  await googleSignIn.initialize();
+  try {
+    await googleSignIn.initialize();
+  } catch (_) {
+    // Platform doesn't support Google Sign-In (e.g. Windows/Linux).
+    // The button will surface an error only if tapped there.
+  }
   sl.registerLazySingleton(() => googleSignIn);
 
   // ---------------- Feature: Auth ----------------
