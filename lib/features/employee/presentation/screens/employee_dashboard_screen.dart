@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/empty_state_view.dart';
 import '../../../../core/widgets/error_view.dart';
+import '../../../../core/theme/theme_cubit.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../domain/entities/employee_entity.dart';
@@ -40,16 +41,22 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
     super.dispose();
   }
 
-  Future<void> _confirmDelete(BuildContext context, EmployeeEntity employee) async {
+  Future<void> _confirmDelete(
+    BuildContext context,
+    EmployeeEntity employee,
+  ) async {
     final confirmed = await ConfirmationDialog.show(
       context,
       title: 'Delete employee',
-      message: 'Are you sure you want to delete ${employee.name}? This cannot be undone.',
+      message:
+          'Are you sure you want to delete ${employee.name}? This cannot be undone.',
       confirmLabel: 'Delete',
       isDestructive: true,
     );
     if (confirmed && context.mounted) {
-      context.read<EmployeeListBloc>().add(EmployeeDeleteRequested(employee.id));
+      context.read<EmployeeListBloc>().add(
+        EmployeeDeleteRequested(employee.id),
+      );
     }
   }
 
@@ -70,22 +77,23 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 children: EmployeeFilterField.values
                     .where((f) => f != EmployeeFilterField.none)
                     .map((field) {
-                  final label = switch (field) {
-                    EmployeeFilterField.name => 'Name',
-                    EmployeeFilterField.email => 'Email',
-                    EmployeeFilterField.mobile => 'Mobile',
-                    EmployeeFilterField.country => 'Country',
-                    EmployeeFilterField.none => '',
-                  };
-                  return ChoiceChip(
-                    label: Text(label),
-                    selected: _selectedFilterField == field,
-                    onSelected: (_) {
-                      setState(() => _selectedFilterField = field);
-                      Navigator.of(sheetContext).pop();
-                    },
-                  );
-                }).toList(),
+                      final label = switch (field) {
+                        EmployeeFilterField.name => 'Name',
+                        EmployeeFilterField.email => 'Email',
+                        EmployeeFilterField.mobile => 'Mobile',
+                        EmployeeFilterField.country => 'Country',
+                        EmployeeFilterField.none => '',
+                      };
+                      return ChoiceChip(
+                        label: Text(label),
+                        selected: _selectedFilterField == field,
+                        onSelected: (_) {
+                          setState(() => _selectedFilterField = field);
+                          Navigator.of(sheetContext).pop();
+                        },
+                      );
+                    })
+                    .toList(),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -93,11 +101,11 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 decoration: const InputDecoration(hintText: 'Filter value'),
                 onSubmitted: (value) {
                   context.read<EmployeeListBloc>().add(
-                        EmployeeFilterChanged(
-                          field: _selectedFilterField,
-                          query: value,
-                        ),
-                      );
+                    EmployeeFilterChanged(
+                      field: _selectedFilterField,
+                      query: value,
+                    ),
+                  );
                   Navigator.of(sheetContext).pop();
                 },
               ),
@@ -107,14 +115,16 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () {
-                        setState(() => _selectedFilterField = EmployeeFilterField.none);
+                        setState(
+                          () => _selectedFilterField = EmployeeFilterField.none,
+                        );
                         _filterController.clear();
                         context.read<EmployeeListBloc>().add(
-                              const EmployeeFilterChanged(
-                                field: EmployeeFilterField.none,
-                                query: '',
-                              ),
-                            );
+                          const EmployeeFilterChanged(
+                            field: EmployeeFilterField.none,
+                            query: '',
+                          ),
+                        );
                         Navigator.of(sheetContext).pop();
                       },
                       child: const Text('Clear filter'),
@@ -125,11 +135,11 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                     child: ElevatedButton(
                       onPressed: () {
                         context.read<EmployeeListBloc>().add(
-                              EmployeeFilterChanged(
-                                field: _selectedFilterField,
-                                query: _filterController.text,
-                              ),
-                            );
+                          EmployeeFilterChanged(
+                            field: _selectedFilterField,
+                            query: _filterController.text,
+                          ),
+                        );
                         Navigator.of(sheetContext).pop();
                       },
                       child: const Text('Apply'),
@@ -154,17 +164,31 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
             icon: const Icon(Icons.filter_list),
             onPressed: () => _showFilterSheet(context),
           ),
+          BlocBuilder<ThemeCubit, ThemeMode>(
+            builder: (context, mode) {
+              return IconButton(
+                icon: Icon(
+                  mode == ThemeMode.dark
+                      ? Icons.light_mode_outlined
+                      : Icons.dark_mode_outlined,
+                ),
+                onPressed: () => context.read<ThemeCubit>().toggleTheme(),
+                tooltip: 'Toggle theme',
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () => context.read<AuthBloc>().add(const AuthSignOutRequested()),
+            onPressed: () =>
+                context.read<AuthBloc>().add(const AuthSignOutRequested()),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const EmployeeFormScreen()),
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const EmployeeFormScreen()));
         },
         child: const Icon(Icons.add),
       ),
@@ -178,9 +202,9 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 hintText: 'Search by employee ID',
                 prefixIcon: Icon(Icons.search),
               ),
-              onChanged: (value) => context
-                  .read<EmployeeListBloc>()
-                  .add(EmployeeSearchByIdChanged(value)),
+              onChanged: (value) => context.read<EmployeeListBloc>().add(
+                EmployeeSearchByIdChanged(value),
+              ),
             ),
           ),
           Expanded(
@@ -206,16 +230,17 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 if (state.status == EmployeeListStatus.error) {
                   return ErrorView(
                     message: state.errorMessage ?? 'Something went wrong.',
-                    onRetry: () => context
-                        .read<EmployeeListBloc>()
-                        .add(const EmployeeListStarted()),
+                    onRetry: () => context.read<EmployeeListBloc>().add(
+                      const EmployeeListStarted(),
+                    ),
                   );
                 }
                 if (state.isEmpty) {
                   return EmptyStateView(
                     icon: Icons.people_outline,
                     title: 'No employees found',
-                    subtitle: state.searchId.isNotEmpty ||
+                    subtitle:
+                        state.searchId.isNotEmpty ||
                             state.filterField != EmployeeFilterField.none
                         ? 'Try adjusting your search or filter.'
                         : 'Tap + to add your first employee.',
@@ -223,10 +248,12 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
                 }
                 return RefreshIndicator(
                   onRefresh: () async {
-                    context.read<EmployeeListBloc>().add(const EmployeeListRefreshed());
+                    context.read<EmployeeListBloc>().add(
+                      const EmployeeListRefreshed(),
+                    );
                     await context.read<EmployeeListBloc>().stream.firstWhere(
-                          (s) => !s.isRefreshing,
-                        );
+                      (s) => !s.isRefreshing,
+                    );
                   },
                   child: ListView.builder(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
