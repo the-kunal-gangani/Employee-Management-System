@@ -30,6 +30,8 @@ import 'features/employee/domain/usecases/get_cities.dart';
 import 'features/employee/domain/usecases/get_countries.dart';
 import 'features/employee/domain/usecases/get_employees.dart';
 import 'features/employee/domain/usecases/get_states.dart';
+import 'features/employee/presentation/bloc/employee_form/employee_form_bloc.dart';
+import 'features/employee/presentation/bloc/employee_list/employee_list_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -104,4 +106,17 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => GetCountries(sl()));
   sl.registerLazySingleton(() => GetStates(sl()));
   sl.registerLazySingleton(() => GetCities(sl()));
+
+  sl.registerFactory(
+    () => EmployeeListBloc(getEmployees: sl(), deleteEmployee: sl()),
+  );
+  sl.registerFactory(
+    () => EmployeeFormBloc(
+      getCountries: sl(),
+      getStates: sl(),
+      getCities: sl(),
+      createEmployee: sl(),
+      updateEmployee: sl(),
+    ),
+  );
 }
