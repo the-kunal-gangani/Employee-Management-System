@@ -4,9 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/widgets/confirmation_dialog.dart';
 import '../../../../core/widgets/empty_state_view.dart';
 import '../../../../core/widgets/error_view.dart';
-import '../../../../core/theme/theme_cubit.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../domain/entities/employee_entity.dart';
 import '../bloc/employee_list/employee_list_bloc.dart';
 import '../bloc/employee_list/employee_list_event.dart';
@@ -27,12 +24,6 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
   final _searchController = TextEditingController();
   final _filterController = TextEditingController();
   EmployeeFilterField _selectedFilterField = EmployeeFilterField.none;
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<EmployeeListBloc>().add(const EmployeeListStarted());
-  }
 
   @override
   void dispose() {
@@ -163,24 +154,6 @@ class _EmployeeDashboardScreenState extends State<EmployeeDashboardScreen> {
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () => _showFilterSheet(context),
-          ),
-          BlocBuilder<ThemeCubit, ThemeMode>(
-            builder: (context, mode) {
-              return IconButton(
-                icon: Icon(
-                  mode == ThemeMode.dark
-                      ? Icons.light_mode_outlined
-                      : Icons.dark_mode_outlined,
-                ),
-                onPressed: () => context.read<ThemeCubit>().toggleTheme(),
-                tooltip: 'Toggle theme',
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () =>
-                context.read<AuthBloc>().add(const AuthSignOutRequested()),
           ),
         ],
       ),

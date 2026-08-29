@@ -18,6 +18,12 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ctaForeground =
+        Theme.of(
+          context,
+        ).elevatedButtonTheme.style?.foregroundColor?.resolve({}) ??
+        Colors.white;
+
     final child = isLoading
         ? SizedBox(
             height: 20,
@@ -25,7 +31,9 @@ class CustomButton extends StatelessWidget {
             child: CircularProgressIndicator(
               strokeWidth: 2.5,
               valueColor: AlwaysStoppedAnimation<Color>(
-                outlined ? Theme.of(context).colorScheme.primary : Colors.white,
+                outlined
+                    ? Theme.of(context).colorScheme.primary
+                    : ctaForeground,
               ),
             ),
           )
@@ -61,6 +69,10 @@ class CustomButton extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
+        style: ElevatedButton.styleFrom(
+          shape: const StadiumBorder(),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+        ),
         child: child,
       ),
     );

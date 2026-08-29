@@ -10,7 +10,8 @@ import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/employee/presentation/bloc/employee_list/employee_list_bloc.dart';
-import 'features/employee/presentation/screens/employee_dashboard_screen.dart';
+import 'features/employee/presentation/bloc/employee_list/employee_list_event.dart';
+import 'features/employee/presentation/screens/main_shell.dart';
 import 'firebase_options.dart';
 import 'injection_container.dart' as di;
 
@@ -54,8 +55,7 @@ class EmployeeManagementApp extends StatelessWidget {
   }
 }
 
-/// Routes between Login and the Employee Dashboard based on AuthBloc's
-/// status.
+/// Routes between Login and the main app shell based on AuthBloc's status.
 class _AuthGate extends StatelessWidget {
   const _AuthGate();
 
@@ -70,8 +70,9 @@ class _AuthGate extends StatelessWidget {
             );
           case AuthStatus.authenticated:
             return BlocProvider(
-              create: (_) => di.sl<EmployeeListBloc>(),
-              child: const EmployeeDashboardScreen(),
+              create: (_) =>
+                  di.sl<EmployeeListBloc>()..add(const EmployeeListStarted()),
+              child: const MainShell(),
             );
           case AuthStatus.unauthenticated:
             return const LoginScreen();

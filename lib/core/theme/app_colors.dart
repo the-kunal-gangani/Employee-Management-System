@@ -13,6 +13,27 @@ class AppColors {
   static const Color error = Color(0xFFEF4444);
   static const Color warning = Color(0xFFF59E0B);
 
+  // Pill buttons / high-contrast CTAs (the black "Home"/"Get in touch" pills)
+  static const Color pillDark = Color(0xFF14161A);
+
+  // Pastel stat-tile backgrounds (light mode)
+  static const Color statBlueLight = Color(0xFFE3F0FF);
+  static const Color statGreenLight = Color(0xFFE3F9EC);
+  static const Color statPurpleLight = Color(0xFFF1E9FF);
+  static const Color statYellowLight = Color(0xFFFFF6DD);
+
+  // Pastel stat-tile backgrounds (dark mode) — desaturated, low-luminance versions
+  static const Color statBlueDark = Color(0xFF16233A);
+  static const Color statGreenDark = Color(0xFF15281F);
+  static const Color statPurpleDark = Color(0xFF241C3A);
+  static const Color statYellowDark = Color(0xFF332C13);
+
+  // Stat-tile icon/accent colors (same in both themes)
+  static const Color statBlueIcon = Color(0xFF2E7CF6);
+  static const Color statGreenIcon = Color(0xFF1FAE5C);
+  static const Color statPurpleIcon = Color(0xFF8B5CF6);
+  static const Color statYellowIcon = Color(0xFFD69E0A);
+
   // Light theme surfaces
   static const Color lightBackground = Color(0xFFF8FAFC);
   static const Color lightSurface = Color(0xFFFFFFFF);
