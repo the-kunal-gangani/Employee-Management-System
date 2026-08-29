@@ -8,13 +8,16 @@ import 'core/theme/theme_cubit.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
+import 'features/auth/presentation/screens/login_screen.dart';
 import 'firebase_options.dart';
 import 'injection_container.dart' as di;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   await Hive.initFlutter();
 
@@ -69,19 +72,10 @@ class _AuthGate extends StatelessWidget {
           case AuthStatus.authenticated:
             return const _DashboardPlaceholder();
           case AuthStatus.unauthenticated:
-            return const _LoginPlaceholder();
+            return const LoginScreen();
         }
       },
     );
-  }
-}
-
-class _LoginPlaceholder extends StatelessWidget {
-  const _LoginPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text('Login screen goes here')));
   }
 }
 
