@@ -94,7 +94,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       final GoogleSignInAuthentication idTokenAuth = account.authentication;
 
-      final GoogleSignInClientAuthorization? authorization =
+      final GoogleSignInClientAuthorization authorization =
           await account.authorizationClient.authorizationForScopes([
             'email',
             'profile',

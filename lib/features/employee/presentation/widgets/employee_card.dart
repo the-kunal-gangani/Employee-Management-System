@@ -1,141 +1,236 @@
-import 'package:employee_management_system/features/employee/domain/entities/employee_entity.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../domain/entities/employee_entity.dart';
+import '../../../domain/usecases/delete_employee.dart';
+import '../../../domain/usecases/get_employees.dart';
+import 'employee_list_event.dart';
+import 'employee_list_state.dart';
 
-class EmployeeCard extends StatelessWidget {
-  final EmployeeEntity employee;
-  final VoidCallback onTap;
-  final VoidCallback onDelete;
-  final bool showDeleteAction;
+class EmployeeListBloc extends Bloc<EmployeeListEvent, EmployeeListState> {
+  final GetEmployees getEmployees;
+  final DeleteEmployee deleteEmployee;
 
-  const EmployeeCard({
-    super.key,
-    required this.employee,
-    required this.onTap,
-    required this.onDelete,
-    this.showDeleteAction = true,
-  });
+  EmployeeListBloc({required this.getEmployees, required this.deleteEmployee})
+    : super(const EmployeeListState()) {
+    on<EmployeeListStarted>(_onStarted);
+    on<EmployeeListRefreshed>(_onRefreshed);
+    on<EmployeeSearchByIdChanged>(_onSearchByIdChanged);
+    on<EmployeeFilterChanged>(_onFilterChanged);
+    on<EmployeeDeleteRequested>(_onDeleteRequested);
+    on<EmployeeDeletePending>(_onDeletePending);
+    on<EmployeeDeleteUndone>(_onDeleteUndone);
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final initials = employee.name.trim().isNotEmpty
-        ? employee.name.trim().substring(0, 1).toUpperCase()
-        : '?';
+  static const _undoWindow = Duration(seconds: 4);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 48,
-                width: 48,
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? AppColors.statBlueDark
-                      : AppColors.statBlueLight,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  initials,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: AppColors.statBlueIcon,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            employee.name,
-                            style: theme.textTheme.titleLarge,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (showDeleteAction)
-                          InkWell(
-                            borderRadius: BorderRadius.circular(20),
-                            onTap: onDelete,
-                            child: Padding(
-                              padding: const EdgeInsets.all(4),
-                              child: Icon(
-                                Icons.delete_outline,
-                                size: 20,
-                                color: theme.colorScheme.error,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      employee.email,
-                      style: theme.textTheme.bodyMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 6,
-                      children: [
-                        _MetaChip(
-                          icon: Icons.phone_outlined,
-                          label: employee.mobile,
-                        ),
-                        _MetaChip(icon: Icons.public, label: employee.country),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+  Future<void> _onStarted(
+    EmployeeListStarted event,
+    Emitter<EmployeeListState> emit,
+  ) async {
+    emit(state.copyWith(status: EmployeeListStatus.loading, clearError: true));
+    final result = await getEmployees();
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: EmployeeListStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (employees) => emit(
+        state.copyWith(
+          status: EmployeeListStatus.loaded,
+          employees: employees,
+          filteredEmployees: _applyFilters(
+            employees,
+            state.searchId,
+            state.filterField,
+            state.filterQuery,
           ),
         ),
       ),
     );
   }
-}
 
-class _MetaChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _MetaChip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: theme.dividerColor),
+  Future<void> _onRefreshed(
+    EmployeeListRefreshed event,
+    Emitter<EmployeeListState> emit,
+  ) async {
+    emit(state.copyWith(isRefreshing: true, clearError: true));
+    final result = await getEmployees(forceRemote: true);
+    result.fold(
+      (failure) => emit(
+        state.copyWith(isRefreshing: false, errorMessage: failure.message),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: theme.textTheme.bodySmall?.color),
-          const SizedBox(width: 4),
-          Text(label, style: theme.textTheme.bodySmall),
-        ],
+      (employees) => emit(
+        state.copyWith(
+          status: EmployeeListStatus.loaded,
+          isRefreshing: false,
+          employees: employees,
+          filteredEmployees: _applyFilters(
+            employees,
+            state.searchId,
+            state.filterField,
+            state.filterQuery,
+          ),
+        ),
       ),
     );
+  }
+
+  void _onSearchByIdChanged(
+    EmployeeSearchByIdChanged event,
+    Emitter<EmployeeListState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        searchId: event.query,
+        filteredEmployees: _applyFilters(
+          state.employees,
+          event.query,
+          state.filterField,
+          state.filterQuery,
+        ),
+      ),
+    );
+  }
+
+  void _onFilterChanged(
+    EmployeeFilterChanged event,
+    Emitter<EmployeeListState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        filterField: event.field,
+        filterQuery: event.query,
+        filteredEmployees: _applyFilters(
+          state.employees,
+          state.searchId,
+          event.field,
+          event.query,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onDeleteRequested(
+    EmployeeDeleteRequested event,
+    Emitter<EmployeeListState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        deleteStatus: EmployeeDeleteStatus.deleting,
+        clearDeleteError: true,
+      ),
+    );
+    final result = await deleteEmployee(event.id);
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          deleteStatus: EmployeeDeleteStatus.failure,
+          deleteErrorMessage: failure.message,
+        ),
+      ),
+      (_) {
+        final updated = state.employees.where((e) => e.id != event.id).toList();
+        emit(
+          state.copyWith(
+            deleteStatus: EmployeeDeleteStatus.success,
+            employees: updated,
+            filteredEmployees: _applyFilters(
+              updated,
+              state.searchId,
+              state.filterField,
+              state.filterQuery,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onDeletePending(
+    EmployeeDeletePending event,
+    Emitter<EmployeeListState> emit,
+  ) async {
+    final employee = event.employee;
+    final updated = state.employees.where((e) => e.id != employee.id).toList();
+    emit(
+      state.copyWith(
+        employees: updated,
+        filteredEmployees: _applyFilters(
+          updated,
+          state.searchId,
+          state.filterField,
+          state.filterQuery,
+        ),
+        pendingDelete: employee,
+      ),
+    );
+
+    await Future<void>.delayed(_undoWindow);
+
+    // Still pending (i.e. not undone in the meantime) — commit the delete.
+    if (state.pendingDelete?.id == employee.id) {
+      emit(state.copyWith(clearPendingDelete: true));
+      add(EmployeeDeleteRequested(employee.id));
+    }
+  }
+
+  void _onDeleteUndone(
+    EmployeeDeleteUndone event,
+    Emitter<EmployeeListState> emit,
+  ) {
+    final employee = state.pendingDelete;
+    if (employee == null) return;
+
+    final restored = [...state.employees, employee];
+    emit(
+      state.copyWith(
+        employees: restored,
+        filteredEmployees: _applyFilters(
+          restored,
+          state.searchId,
+          state.filterField,
+          state.filterQuery,
+        ),
+        clearPendingDelete: true,
+      ),
+    );
+  }
+
+  List<EmployeeEntity> _applyFilters(
+    List<EmployeeEntity> source,
+    String searchId,
+    EmployeeFilterField field,
+    String query,
+  ) {
+    var result = source;
+
+    if (searchId.trim().isNotEmpty) {
+      final needle = searchId.trim().toLowerCase();
+      result = result
+          .where((e) => e.id.toLowerCase().contains(needle))
+          .toList();
+    }
+
+    if (field != EmployeeFilterField.none && query.trim().isNotEmpty) {
+      final needle = query.trim().toLowerCase();
+      result = result.where((e) {
+        switch (field) {
+          case EmployeeFilterField.name:
+            return e.name.toLowerCase().contains(needle);
+          case EmployeeFilterField.email:
+            return e.email.toLowerCase().contains(needle);
+          case EmployeeFilterField.mobile:
+            return e.mobile.toLowerCase().contains(needle);
+          case EmployeeFilterField.country:
+            return e.country.toLowerCase().contains(needle);
+          case EmployeeFilterField.none:
+            return true;
+        }
+      }).toList();
+    }
+
+    return result;
   }
 }

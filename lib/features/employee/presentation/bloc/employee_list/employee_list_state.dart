@@ -18,6 +18,7 @@ class EmployeeListState extends Equatable {
   final EmployeeDeleteStatus deleteStatus;
   final String? deleteErrorMessage;
   final bool isRefreshing;
+  final EmployeeEntity? pendingDelete;
 
   const EmployeeListState({
     this.status = EmployeeListStatus.initial,
@@ -30,6 +31,7 @@ class EmployeeListState extends Equatable {
     this.deleteStatus = EmployeeDeleteStatus.idle,
     this.deleteErrorMessage,
     this.isRefreshing = false,
+    this.pendingDelete,
   });
 
   bool get isEmpty =>
@@ -48,6 +50,8 @@ class EmployeeListState extends Equatable {
     String? deleteErrorMessage,
     bool clearDeleteError = false,
     bool? isRefreshing,
+    EmployeeEntity? pendingDelete,
+    bool clearPendingDelete = false,
   }) {
     return EmployeeListState(
       status: status ?? this.status,
@@ -62,20 +66,23 @@ class EmployeeListState extends Equatable {
           ? null
           : (deleteErrorMessage ?? this.deleteErrorMessage),
       isRefreshing: isRefreshing ?? this.isRefreshing,
+      pendingDelete:
+          clearPendingDelete ? null : (pendingDelete ?? this.pendingDelete),
     );
   }
 
   @override
   List<Object?> get props => [
-    status,
-    employees,
-    filteredEmployees,
-    searchId,
-    filterField,
-    filterQuery,
-    errorMessage,
-    deleteStatus,
-    deleteErrorMessage,
-    isRefreshing,
-  ];
+        status,
+        employees,
+        filteredEmployees,
+        searchId,
+        filterField,
+        filterQuery,
+        errorMessage,
+        deleteStatus,
+        deleteErrorMessage,
+        isRefreshing,
+        pendingDelete,
+      ];
 }
