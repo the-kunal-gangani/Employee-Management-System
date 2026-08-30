@@ -9,7 +9,7 @@ import '../../domain/entities/employee_entity.dart';
 import '../bloc/employee_list/employee_list_bloc.dart';
 import '../bloc/employee_list/employee_list_event.dart';
 import '../bloc/employee_list/employee_list_state.dart';
-import '../widgets/employee_card.dart';
+import '../widgets/employee_card.dart' hide EmployeeListBloc;
 import 'employee_detail_screen.dart';
 import 'employee_form_screen.dart';
 
