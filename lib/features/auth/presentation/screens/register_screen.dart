@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_logo_badge.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_textfield.dart';
 import '../bloc/auth_bloc.dart';
@@ -62,6 +63,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const AppLogoBadge(),
+                const SizedBox(height: 20),
                 Text(
                   'Create account',
                   style: Theme.of(context).textTheme.headlineLarge,

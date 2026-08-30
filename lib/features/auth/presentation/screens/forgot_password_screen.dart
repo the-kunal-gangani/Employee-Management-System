@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_logo_badge.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_textfield.dart';
 import '../bloc/auth_bloc.dart';
@@ -28,8 +29,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
       context.read<AuthBloc>().add(
-            AuthForgotPasswordRequested(email: _emailController.text.trim()),
-          );
+        AuthForgotPasswordRequested(email: _emailController.text.trim()),
+      );
     }
   }
 
@@ -44,14 +45,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           listener: (context, state) {
             if (state.actionStatus == AuthActionStatus.failure &&
                 state.errorMessage != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.errorMessage!)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
             } else if (state.actionStatus == AuthActionStatus.success &&
                 state.successMessage != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.successMessage!)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.successMessage!)));
               Navigator.of(context).pop();
             }
           },
@@ -60,6 +61,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const AppLogoBadge(),
+                const SizedBox(height: 20),
                 Text(
                   'Reset password',
                   style: Theme.of(context).textTheme.headlineLarge,

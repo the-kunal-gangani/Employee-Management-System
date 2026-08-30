@@ -64,6 +64,28 @@ class AppTheme {
           textStyle: AppTextStyles.button(Colors.white),
         ),
       ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: AppColors.lightSurface,
+        indicatorColor: AppColors.pillDark,
+        elevation: 0,
+        height: 64,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return IconThemeData(
+            color: selected ? Colors.white : AppColors.lightTextSecondary,
+            size: 22,
+          );
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return AppTextStyles.bodySmall(
+            selected
+                ? AppColors.lightTextPrimary
+                : AppColors.lightTextSecondary,
+          ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400);
+        }),
+      ),
       textTheme: TextTheme(
         headlineLarge: AppTextStyles.headlineLarge(AppColors.lightTextPrimary),
         headlineMedium: AppTextStyles.headlineMedium(
@@ -139,6 +161,28 @@ class AppTheme {
           ),
           textStyle: AppTextStyles.button(AppColors.darkBackground),
         ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: AppColors.darkSurface,
+        indicatorColor: AppColors.darkTextPrimary,
+        elevation: 0,
+        height: 64,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return IconThemeData(
+            color: selected
+                ? AppColors.darkBackground
+                : AppColors.darkTextSecondary,
+            size: 22,
+          );
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return AppTextStyles.bodySmall(
+            selected ? AppColors.darkTextPrimary : AppColors.darkTextSecondary,
+          ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400);
+        }),
       ),
       textTheme: TextTheme(
         headlineLarge: AppTextStyles.headlineLarge(AppColors.darkTextPrimary),

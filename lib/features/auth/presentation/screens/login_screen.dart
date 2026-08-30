@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/validators.dart';
+import '../../../../core/widgets/app_logo_badge.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_textfield.dart';
 import '../bloc/auth_bloc.dart';
@@ -67,6 +68,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 48),
+                        const AppLogoBadge(),
+                        const SizedBox(height: 20),
                         Text(
                           'Welcome back',
                           style: Theme.of(context).textTheme.headlineLarge,
