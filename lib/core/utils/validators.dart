@@ -2,7 +2,7 @@ class Validators {
   Validators._();
 
   static final RegExp _emailRegex = RegExp(
-    r'^[\w\.\-]+@([\w\-]+\.)+[\w\-]{2,4}$',
+    r'^[\w.+\-]+@([\w\-]+\.)+[\w\-]{2,4}$',
   );
 
   static String? email(String? value) {

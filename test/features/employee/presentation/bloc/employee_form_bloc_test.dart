@@ -5,7 +5,6 @@ import 'package:employee_management_system/features/employee/domain/usecases/cre
 import 'package:employee_management_system/features/employee/domain/usecases/update_employees.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-
 import 'package:employee_management_system/features/employee/domain/entities/city_entity.dart';
 import 'package:employee_management_system/features/employee/domain/entities/country_entity.dart';
 import 'package:employee_management_system/features/employee/domain/entities/employee_entity.dart';
@@ -47,6 +46,10 @@ void main() {
     state: 'Gujarat',
     district: 'Ahmedabad',
   );
+
+  setUpAll(() {
+    registerFallbackValue(tExistingEmployee);
+  });
 
   setUp(() {
     getCountries = MockGetCountries();

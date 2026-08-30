@@ -4,7 +4,6 @@ import 'package:employee_management_system/core/errors/failures.dart';
 import 'package:employee_management_system/features/employee/data/repository/employee_repository_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-
 import 'package:employee_management_system/core/network/network_info.dart';
 import 'package:employee_management_system/features/employee/data/datasources/employee_local_datasource.dart';
 import 'package:employee_management_system/features/employee/data/datasources/employee_remote_datasource.dart';
@@ -45,6 +44,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(<EmployeeModel>[]);
+    registerFallbackValue(tEmployeeModel);
   });
 
   setUp(() {
