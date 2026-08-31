@@ -261,4 +261,85 @@ void main() {
       ],
     );
   });
+
+  group('EmployeeDeletePending / EmployeeDeleteUndone', () {
+    test(
+      'EmployeeDeletePending optimistically hides the employee, then commits '
+      'the delete once the undo window elapses without an undo',
+      () async {
+        when(
+          () => getEmployees(forceRemote: false),
+        ).thenAnswer((_) async => const Right(tEmployees));
+        when(
+          () => deleteEmployee('1'),
+        ).thenAnswer((_) async => const Right(null));
+
+        final bloc = EmployeeListBloc(
+          getEmployees: getEmployees,
+          deleteEmployee: deleteEmployee,
+          undoWindow: const Duration(milliseconds: 20),
+        );
+
+        bloc.add(const EmployeeListStarted());
+        await bloc.stream.firstWhere(
+          (s) => s.status == EmployeeListStatus.loaded,
+        );
+
+        bloc.add(const EmployeeDeletePending(tEmployee1));
+        await Future<void>.delayed(const Duration(milliseconds: 5));
+
+        expect(bloc.state.employees, const [tEmployee2]);
+        expect(bloc.state.pendingDelete, tEmployee1);
+        verifyNever(() => deleteEmployee('1'));
+
+        // Wait past the undo window for the commit to fire.
+        await Future<void>.delayed(const Duration(milliseconds: 40));
+
+        expect(bloc.state.pendingDelete, isNull);
+        verify(() => deleteEmployee('1')).called(1);
+
+        await bloc.close();
+      },
+    );
+
+    test(
+      'EmployeeDeleteUndone restores the employee and the delete is never committed',
+      () async {
+        when(
+          () => getEmployees(forceRemote: false),
+        ).thenAnswer((_) async => const Right(tEmployees));
+
+        final bloc = EmployeeListBloc(
+          getEmployees: getEmployees,
+          deleteEmployee: deleteEmployee,
+          undoWindow: const Duration(milliseconds: 50),
+        );
+
+        bloc.add(const EmployeeListStarted());
+        await bloc.stream.firstWhere(
+          (s) => s.status == EmployeeListStatus.loaded,
+        );
+
+        bloc.add(const EmployeeDeletePending(tEmployee1));
+        await Future<void>.delayed(const Duration(milliseconds: 5));
+        expect(bloc.state.employees, const [tEmployee2]);
+
+        bloc.add(const EmployeeDeleteUndone());
+        await Future<void>.delayed(const Duration(milliseconds: 5));
+
+        expect(bloc.state.pendingDelete, isNull);
+        expect(bloc.state.employees.length, 2);
+        expect(
+          bloc.state.employees,
+          containsAll(const [tEmployee1, tEmployee2]),
+        );
+
+        // Confirm the delete never fires even after the original window would have passed.
+        await Future<void>.delayed(const Duration(milliseconds: 80));
+        verifyNever(() => deleteEmployee(any()));
+
+        await bloc.close();
+      },
+    );
+  });
 }

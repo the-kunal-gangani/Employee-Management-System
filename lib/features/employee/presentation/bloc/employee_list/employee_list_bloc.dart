@@ -1,4 +1,4 @@
-import 'package:employee_management_system/features/employee/domain/usecases/delete_employees.dart';
+import 'package:employee_management_system/features/employee/domain/usecases/delete_employees.dart' show DeleteEmployee;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/entities/employee_entity.dart';
@@ -9,9 +9,13 @@ import 'employee_list_state.dart';
 class EmployeeListBloc extends Bloc<EmployeeListEvent, EmployeeListState> {
   final GetEmployees getEmployees;
   final DeleteEmployee deleteEmployee;
+  final Duration undoWindow;
 
-  EmployeeListBloc({required this.getEmployees, required this.deleteEmployee})
-    : super(const EmployeeListState()) {
+  EmployeeListBloc({
+    required this.getEmployees,
+    required this.deleteEmployee,
+    this.undoWindow = const Duration(seconds: 4),
+  }) : super(const EmployeeListState()) {
     on<EmployeeListStarted>(_onStarted);
     on<EmployeeListRefreshed>(_onRefreshed);
     on<EmployeeSearchByIdChanged>(_onSearchByIdChanged);
@@ -20,8 +24,6 @@ class EmployeeListBloc extends Bloc<EmployeeListEvent, EmployeeListState> {
     on<EmployeeDeletePending>(_onDeletePending);
     on<EmployeeDeleteUndone>(_onDeleteUndone);
   }
-
-  static const _undoWindow = Duration(seconds: 4);
 
   Future<void> _onStarted(
     EmployeeListStarted event,
@@ -167,7 +169,7 @@ class EmployeeListBloc extends Bloc<EmployeeListEvent, EmployeeListState> {
       ),
     );
 
-    await Future<void>.delayed(_undoWindow);
+    await Future<void>.delayed(undoWindow);
 
     // Still pending (i.e. not undone in the meantime) — commit the delete.
     if (state.pendingDelete?.id == employee.id) {
